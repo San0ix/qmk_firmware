@@ -2,7 +2,7 @@
 
 * Configuration
 :PROPERTIES:
-:header-args: :results none :tangle config.h
+:header-args: :results none :tangle config.h :main no
 :END:
 
 #+begin_src C
@@ -15,7 +15,9 @@
 // #define EE_HANDS
 
 #define TAPPING_FORCE_HOLD
-#define TAPPING_TERM 100
+#define TAPPING_TERM 150
+#define IGNORE_MOD_TAP_INTERRUPT
+#define PERMISSIVE_HOLD
 
 #undef RGBLED_NUM
 #define RGBLIGHT_ANIMATIONS
@@ -37,7 +39,7 @@
 
 * Rules
 :PROPERTIES:
-:header-args: :results none :tangle rules.mk
+:header-args: :results none :tangle rules.mk :main no
 :END:
 
 Options in this section are relevant for toggling certain [[id:ffea3a51-d974-41c3-9c7e-61103a93bc83][QMK]] features at compile-time
@@ -45,7 +47,7 @@ Options in this section are relevant for toggling certain [[id:ffea3a51-d974-41c
 #+begin_src makefile
 BOOTMAGIC_ENABLE = no       # Enable Bootmagic Lite
 MOUSEKEY_ENABLE = no        # Mouse keys
-EXTRAKEY_ENABLE = no        # Audio control and System control
+EXTRAKEY_ENABLE = yes       # Audio control and System control
 CONSOLE_ENABLE = no         # Console for debug
 COMMAND_ENABLE = no         # Commands for debug and configuration
 NKRO_ENABLE = no
@@ -53,7 +55,7 @@ BACKLIGHT_ENABLE = no       # Enable keyboard backlight functionality
 AUDIO_ENABLE = no           # Audio output
 RGBLIGHT_ENABLE = no       # Enable WS2812 RGB underlight.
 SWAP_HANDS_ENABLE = no      # Enable one-hand typing
-OLED_ENABLE= yes     # OLED display
+OLED_ENABLE= no     # OLED display
 
 # If you want to change the display of OLED, you need to change here
 SRC +=  ./lib/rgb_state_reader.c \
@@ -67,112 +69,140 @@ SRC +=  ./lib/rgb_state_reader.c \
 
 * Layout
 :PROPERTIES:
-:header-args: :results none :tangle keymap.c
+:header-args: :tangle keymap.c :main no
 :END:
 
 #+begin_src C
 #include QMK_KEYBOARD_H
+#+end_src
 
+** Layers
+
+Define the list of layers and start the definition of the layers
+#+begin_src C
 enum layer_number {
-  _QWERTY = 0,
-  _LOWER,
-  _RAISE,
-  _ADJUST,
+  DVORAK = 0,
+  SYMBOLS,
+  MATH,
+  NAVIGATION,
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
+#+end_src
 
-/* QWERTY
- * ,-----------------------------------------.                    ,-----------------------------------------.
- * | ESC  |   1  |   2  |   3  |   4  |   5  |                    |   6  |   7  |   8  |   9  |   0  |  `   |
- * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
- * | Tab  |   Q  |   W  |   E  |   R  |   T  |                    |   Y  |   U  |   I  |   O  |   P  |  -   |
- * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
- * |LCTRL |   A  |   S  |   D  |   F  |   G  |-------.    ,-------|   H  |   J  |   K  |   L  |   ;  |  '   |
- * |------+------+------+------+------+------|   [   |    |    ]  |------+------+------+------+------+------|
- * |LShift|   Z  |   X  |   C  |   V  |   B  |-------|    |-------|   N  |   M  |   ,  |   .  |   /  |RShift|
- * `-----------------------------------------/       /     \      \-----------------------------------------'
- *                   | LAlt | LGUI |LOWER | /Space  /       \Enter \  |RAISE |BackSP| RGUI |
- *                   |      |      |      |/       /         \      \ |      |      |      |
- *                   `----------------------------'           '------''--------------------'
- */
+*** Dvorak
 
- [_QWERTY] = LAYOUT(
-  KC_ESC,   KC_1,   KC_2,    KC_3,    KC_4,    KC_5,                     KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_GRV,
-  KC_TAB,   KC_Q,   KC_W,    KC_E,    KC_R,    KC_T,                     KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_MINS,
-  KC_LCTRL, KC_A,   KC_S,    KC_D,    KC_F,    KC_G,                     KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,
-  KC_LSFT,  KC_Z,   KC_X,    KC_C,    KC_V,    KC_B, KC_LBRC,  KC_RBRC,  KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH,  KC_RSFT,
-                        KC_LALT, KC_LGUI, MO(_LOWER), KC_SPC, KC_ENT, MO(_RAISE), KC_BSPC, KC_RGUI
-),
-/* LOWER
- * ,-----------------------------------------.                    ,-----------------------------------------.
- * |      |      |      |      |      |      |                    |      |      |      |      |      |      |
- * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
- * |  F1  |  F2  |  F3  |  F4  |  F5  |  F6  |                    |  F7  |  F8  |  F9  | F10  | F11  | F12  |
- * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
- * |   `  |   !  |   @  |   #  |   $  |   %  |-------.    ,-------|   ^  |   &  |   *  |   (  |   )  |   -  |
- * |------+------+------+------+------+------|   [   |    |    ]  |------+------+------+------+------+------|
- * |      |      |      |      |      |      |-------|    |-------|      |   _  |   +  |   {  |   }  |   |  |
- * `-----------------------------------------/       /     \      \-----------------------------------------'
- *                   | LAlt | LGUI |LOWER | /Space  /       \Enter \  |RAISE |BackSP| RGUI |
- *                   |      |      |      |/       /         \      \ |      |      |      |
- *                   `----------------------------'           '------''--------------------'
- */
-[_LOWER] = LAYOUT(
-  _______, _______, _______, _______, _______, _______,                   _______, _______, _______,_______, _______, _______,
-  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,                     KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,
-  KC_GRV, KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC,                   KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN, KC_TILD,
-  _______, _______, _______, _______, _______, _______, _______, _______, XXXXXXX, KC_UNDS, KC_PLUS, KC_LCBR, KC_RCBR, KC_PIPE,
-                             _______, _______, _______, _______, _______,  _______, _______, _______
-),
-/* RAISE
- * ,-----------------------------------------.                    ,-----------------------------------------.
- * |      |      |      |      |      |      |                    |      |      |      |      |      |      |
- * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
- * |   `  |   1  |   2  |   3  |   4  |   5  |                    |   6  |   7  |   8  |   9  |   0  |      |
- * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
- * |  F1  |  F2  |  F3  |  F4  |  F5  |  F6  |-------.    ,-------|      | Left | Down |  Up  |Right |      |
- * |------+------+------+------+------+------|   [   |    |    ]  |------+------+------+------+------+------|
- * |  F7  |  F8  |  F9  | F10  | F11  | F12  |-------|    |-------|   +  |   -  |   =  |   [  |   ]  |   \  |
- * `-----------------------------------------/       /     \      \-----------------------------------------'
- *                   | LAlt | LGUI |LOWER | /Space  /       \Enter \  |RAISE |BackSP| RGUI |
- *                   |      |      |      |/       /         \      \ |      |      |      |
- *                   `----------------------------'           '------''--------------------'
- */
+#+begin_src C
+[0] = LAYOUT(KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_SCLN, KC_COMM, KC_DOT, KC_P, KC_Y, KC_F, KC_G, KC_C, KC_R, KC_L, KC_GRV, KC_NO, LGUI_T(KC_A), LALT_T(KC_O), LCTL_T(KC_E), LSFT_T(KC_U), KC_I, KC_D, RSFT_T(KC_H), RCTL_T(KC_T), RALT_T(KC_N), RGUI_T(KC_S), KC_NO, KC_NO, KC_QUOT, KC_Q, KC_J, KC_K, KC_X, TO(4), TO(4), KC_B, KC_M, KC_W, KC_V, KC_Z, KC_NO, KC_NO, LT(1,KC_BSLS), LT(2,KC_TAB), KC_SPC, KC_BSPC, LT(2,KC_ENT), LT(1,KC_ESC), KC_NO),
+#+end_src
 
-[_RAISE] = LAYOUT(
-  _______, _______, _______, _______, _______, _______,                     _______, _______, _______, _______, _______, _______,
-  KC_GRV,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                        KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    _______,
-  KC_F1,  KC_F2,    KC_F3,   KC_F4,   KC_F5,   KC_F6,                       XXXXXXX, KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT, XXXXXXX,
-  KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,   _______, _______,  KC_PLUS, KC_MINS, KC_EQL,  KC_LBRC, KC_RBRC, KC_BSLS,
-                             _______, _______, _______,  _______, _______,  _______, _______, _______
+*** Numbers
+
+Put numpad on right keyboard and all math-related symbols on the right half
+#+begin_src C
+[1] = LAYOUT(
+// first row
+// left hand
+KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,
+// right hand
+KC_NO, KC_NLCK, KC_PSLS, KC_PAST, KC_PMNS, KC_NO,
+
+// second row
+// left hand
+KC_NO, KC_NO, KC_TRNS, KC_TRNS, KC_PAST, KC_NO,
+// right hand
+KC_NO, KC_P7, KC_P8, KC_P9, KC_PEQL, KC_NO,
+
+// third row
+// left hand
+KC_NO, KC_CIRC, KC_UNDS, KC_PMNS, KC_PPLS, KC_PEQL,
+// right hand
+KC_NO, KC_P4, KC_P5, KC_P6, KC_PPLS, KC_NO,
+
+// fourth row
+// left hand
+KC_NO, KC_PERC, KC_PSLS, KC_EXLM, KC_QUES, KC_NO,
+// thumb keys
+KC_TRNS, KC_TRNS,
+// right hand
+KC_NO, KC_P1, KC_P2, KC_P3, KC_PENT, KC_NO,
+
+// thumb row
+KC_TRNS, KC_TRNS, LT(3,KC_TAB), KC_TRNS,
+KC_TRNS, LT(3,KC_ENT), LT(1,KC_P0), KC_PDOT
 ),
-/* ADJUST
- * ,-----------------------------------------.                    ,-----------------------------------------.
- * |      |      |      |      |      |      |                    |      |      |      |      |      |      |
- * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
- * |      |      |      |      |      |      |                    |      |      |      |      |      |      |
- * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
- * |      |      |      |      |      |      |-------.    ,-------|      |      |RGB ON| HUE+ | SAT+ | VAL+ |
- * |------+------+------+------+------+------|       |    |       |------+------+------+------+------+------|
- * |      |      |      |      |      |      |-------|    |-------|      |      | MODE | HUE- | SAT- | VAL- |
- * `-----------------------------------------/       /     \      \-----------------------------------------'
- *                   | LAlt | LGUI |LOWER | /Space  /       \Enter \  |RAISE |BackSP| RGUI |
- *                   |      |      |      |/       /         \      \ |      |      |      |
- *                   `----------------------------'           '------''--------------------'
- */
-  [_ADJUST] = LAYOUT(
-  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                   XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                   XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                   XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-                             _______, _______, _______, _______, _______,  _______, _______, _______
-  )
+#+end_src
+
+*** Symbols
+
+Put all symbols in this layer. For additional convenience, copy left hand of [[Numbers]] layer
+#+begin_src C
+[2] = LAYOUT(
+// first row
+KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,
+KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,
+
+// second row
+KC_NO, KC_NO, KC_TRNS, KC_TRNS, KC_PAST, KC_NO,
+KC_NO, KC_TILD, KC_AMPR, KC_PIPE, KC_HASH, KC_NO,
+
+// third row
+KC_NO, KC_CIRC, KC_UNDS, KC_PMNS, KC_PPLS, KC_PEQL,
+KC_LCBR, KC_LBRC, KC_LPRN, KC_MINS, KC_AT, KC_DLR,
+
+// fourth row
+KC_NO, KC_PERC, KC_PSLS, KC_EXLM, KC_QUES, KC_NO,
+KC_TRNS, KC_TRNS,
+KC_RCBR, KC_RBRC, KC_RPRN, KC_UNDS, KC_NO, KC_NO,
+
+// thumb row
+KC_TRNS, LT(3,KC_BSLS), KC_TRNS, KC_TRNS,
+KC_TRNS, KC_TRNS, LT(3,KC_ESC), KC_TRNS
+),
+#+end_src
+
+*** Navigation
+
+#+begin_src C
+[3] = LAYOUT(
+KC_PWR, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,
+KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_PSCR,
+
+KC_F1, KC_F2, KC_F3, KC_F4, KC_F5, KC_F6,
+KC_F7, KC_F8, KC_F9, KC_F10, KC_F11, KC_F12,
+
+KC_MSTP, KC_MPRV, KC_VOLD, KC_VOLU, KC_MNXT, KC_MPLY,
+KC_HOME, KC_LEFT, KC_DOWN, KC_UP, KC_RGHT, KC_END,
+
+MEH(KC_QUOT), MEH(KC_Q), KC_MUTE, MEH(KC_J), MEH(KC_K), MEH(KC_X),
+KC_TRNS, KC_TRNS,
+KC_NO, KC_NO, KC_PGDN, KC_PGUP, KC_NO, KC_NO,
+
+KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS
+),
+#+end_src
+
+*** Gaming
+
+#+begin_src C
+[4] = LAYOUT(KC_ESC, KC_1, KC_2, KC_3, KC_4, KC_5, KC_6, KC_7, KC_8, KC_9, KC_0, KC_NO, KC_TAB, KC_Q, KC_W, KC_E, KC_R, KC_T, KC_Y, KC_U, KC_I, KC_O, KC_P, KC_NO, KC_LSFT, KC_A, KC_S, KC_D, KC_F, KC_G, KC_H, KC_J, KC_K, KC_L, KC_SCLN, KC_RSFT, KC_LCTL, KC_Z, KC_X, KC_C, KC_V, KC_B, TO(0), TO(0), KC_N, KC_M, KC_COMM, KC_DOT, KC_SLSH, KC_RCTL, KC_LGUI, KC_NO, LT(5,KC_TAB), KC_TRNS, KC_TRNS, LT(5,KC_ENT), KC_NO, KC_RGUI),
+#+end_src
+
+*** Gaming Numbers
+
+#+begin_src C
+[5] = LAYOUT(KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_7, KC_8, KC_9, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_4, KC_5, KC_6, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_1, KC_2, KC_3, KC_NO, KC_TRNS, KC_TRNS, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS)
+#+end_src
+
+** Remainder
+
+#+begin_src C
 };
 
-layer_state_t layer_state_set_user(layer_state_t state) {
-  return update_tri_layer_state(state, _LOWER, _RAISE, _ADJUST);
-}
+/* layer_state_t layer_state_set_user(layer_state_t state) { */
+/*   return update_tri_layer_state(state, SYMBOLS, MATH, NAVIGATION); */
+/* } */
 
 //SSD1306 OLED update loop, make sure to enable OLED_ENABLE=yes in rules.mk
 #ifdef OLED_ENABLE
@@ -221,3 +251,211 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   return true;
 }
 #+end_src
+
+** Notes
+*** List of QMK Keycodes
+| Key                    | Aliases                   | Description                             | Windows | macOS   | Linux (1) |
+|------------------------+---------------------------+-----------------------------------------+---------+---------+-----------|
+| ~KC_NO~                  | ~XXXXXXX~                   | Ignore this key (NOOP)                  | *N/A*     | *N/A*     | *N/A*       |
+| ~KC_TRANSPARENT~         | ~KC_TRNS~, ~_______~          | Use the next lowest non-transparent key | *N/A*     | *N/A*     | *N/A*       |
+| ~KC_A~                   |                           | ~a~ and ~A~                                 | yes     | yes     | yes       |
+| ~KC_B~                   |                           | ~b~ and ~B~                                 | yes     | yes     | yes       |
+| ~KC_C~                   |                           | ~c~ and ~C~                                 | yes     | yes     | yes       |
+| ~KC_D~                   |                           | ~d~ and ~D~                                 | yes     | yes     | yes       |
+| ~KC_E~                   |                           | ~e~ and ~E~                                 | yes     | yes     | yes       |
+| ~KC_F~                   |                           | ~f~ and ~F~                                 | yes     | yes     | yes       |
+| ~KC_G~                   |                           | ~g~ and ~G~                                 | yes     | yes     | yes       |
+| ~KC_H~                   |                           | ~h~ and ~H~                                 | yes     | yes     | yes       |
+| ~KC_I~                   |                           | ~i~ and ~I~                                 | yes     | yes     | yes       |
+| ~KC_J~                   |                           | ~j~ and ~J~                                 | yes     | yes     | yes       |
+| ~KC_K~                   |                           | ~k~ and ~K~                                 | yes     | yes     | yes       |
+| ~KC_L~                   |                           | ~l~ and ~L~                                 | yes     | yes     | yes       |
+| ~KC_M~                   |                           | ~m~ and ~M~                                 | yes     | yes     | yes       |
+| ~KC_N~                   |                           | ~n~ and ~N~                                 | yes     | yes     | yes       |
+| ~KC_O~                   |                           | ~o~ and ~O~                                 | yes     | yes     | yes       |
+| ~KC_P~                   |                           | ~p~ and ~P~                                 | yes     | yes     | yes       |
+| ~KC_Q~                   |                           | ~q~ and ~Q~                                 | yes     | yes     | yes       |
+| ~KC_R~                   |                           | ~r~ and ~R~                                 | yes     | yes     | yes       |
+| ~KC_S~                   |                           | ~s~ and ~S~                                 | yes     | yes     | yes       |
+| ~KC_T~                   |                           | ~t~ and ~T~                                 | yes     | yes     | yes       |
+| ~KC_U~                   |                           | ~u~ and ~U~                                 | yes     | yes     | yes       |
+| ~KC_V~                   |                           | ~v~ and ~V~                                 | yes     | yes     | yes       |
+| ~KC_W~                   |                           | ~w~ and ~W~                                 | yes     | yes     | yes       |
+| ~KC_X~                   |                           | ~x~ and ~X~                                 | yes     | yes     | yes       |
+| ~KC_Y~                   |                           | ~y~ and ~Y~                                 | yes     | yes     | yes       |
+| ~KC_Z~                   |                           | ~z~ and ~Z~                                 | yes     | yes     | yes       |
+| ~KC_1~                   |                           | ~1~ and ~!~                                 | yes     | yes     | yes       |
+| ~KC_2~                   |                           | ~2~ and ~@~                                 | yes     | yes     | yes       |
+| ~KC_3~                   |                           | ~3~ and ~#~                                 | yes     | yes     | yes       |
+| ~KC_4~                   |                           | ~4~ and ~$~                                 | yes     | yes     | yes       |
+| ~KC_5~                   |                           | ~5~ and ~%~                                 | yes     | yes     | yes       |
+| ~KC_6~                   |                           | ~6~ and ~^~                                 | yes     | yes     | yes       |
+| ~KC_7~                   |                           | ~7~ and ~&~                                 | yes     | yes     | yes       |
+| ~KC_8~                   |                           | ~8~ and ~*~                                 | yes     | yes     | yes       |
+| ~KC_9~                   |                           | ~9~ and ~(~                                 | yes     | yes     | yes       |
+| ~KC_0~                   |                           | ~0~ and ~)~                                 | yes     | yes     | yes       |
+| ~KC_ENTER~               | ~KC_ENT~                    | Return (Enter)                          | yes     | yes     | yes       |
+| ~KC_ESCAPE~              | ~KC_ESC~                    | Escape                                  | yes     | yes     | yes       |
+| ~KC_BACKSPACE~           | ~KC_BSPC~                   | Delete (Backspace)                      | yes     | yes     | yes       |
+| ~KC_TAB~                 |                           | Tab                                     | yes     | yes     | yes       |
+| ~KC_SPACE~               | ~KC_SPC~                    | Spacebar                                | yes     | yes     | yes       |
+| ~KC_MINUS~               | ~KC_MINS~                   | ~-~ and ~_~                                 | yes     | yes     | yes       |
+| ~KC_EQUAL~               | ~KC_EQL~                    | ~=~ and ~+~                                 | yes     | yes     | yes       |
+| ~KC_LEFT_BRACKET~        | ~KC_LBRC~                   | ~[~ and ~{~                                 | yes     | yes     | yes       |
+| ~KC_RIGHT_BRACKET~       | ~KC_RBRC~                   | ~]~ and ~}~                                 | yes     | yes     | yes       |
+| ~KC_BACKSLASH~           | ~KC_BSLS~                   | ~\~ and \vert                                 | yes     | yes     | yes       |
+| ~KC_NONUS_HASH~          | ~KC_NUHS~                   | Non-US ~#~ and ~~~                          | yes     | yes     | yes       |
+| ~KC_SEMICOLON~           | ~KC_SCLN~                   | ~;~ and ~:~                                 | yes     | yes     | yes       |
+| ~KC_QUOTE~               | ~KC_QUOT~                   | ~'~ and ~"~                                 | yes     | yes     | yes       |
+| ~KC_GRAVE~               | ~KC_GRV~                    | <code>&#96;</code> and ~~~                | yes     | yes     | yes       |
+| ~KC_COMMA~               | ~KC_COMM~                   | ~,~ and ~<~                                 | yes     | yes     | yes       |
+| ~KC_DOT~                 |                           | ~.~ and ~>~                                 | yes     | yes     | yes       |
+| ~KC_SLASH~               | ~KC_SLSH~                   | ~/~ and ~?~                                 | yes     | yes     | yes       |
+| ~KC_CAPS_LOCK~           | ~KC_CAPS~                   | Caps Lock                               | yes     | yes     | yes       |
+| ~KC_F1~                  |                           | F1                                      | yes     | yes     | yes       |
+| ~KC_F2~                  |                           | F2                                      | yes     | yes     | yes       |
+| ~KC_F3~                  |                           | F3                                      | yes     | yes     | yes       |
+| ~KC_F4~                  |                           | F4                                      | yes     | yes     | yes       |
+| ~KC_F5~                  |                           | F5                                      | yes     | yes     | yes       |
+| ~KC_F6~                  |                           | F6                                      | yes     | yes     | yes       |
+| ~KC_F7~                  |                           | F7                                      | yes     | yes     | yes       |
+| ~KC_F8~                  |                           | F8                                      | yes     | yes     | yes       |
+| ~KC_F9~                  |                           | F9                                      | yes     | yes     | yes       |
+| ~KC_F10~                 |                           | F10                                     | yes     | yes     | yes       |
+| ~KC_F11~                 |                           | F11                                     | yes     | yes     | yes       |
+| ~KC_F12~                 |                           | F12                                     | yes     | yes     | yes       |
+| ~KC_PRINT_SCREEN~        | ~KC_PSCR~                   | Print Screen                            | yes     | yes (2) | yes       |
+| ~KC_SCROLL_LOCK~         | ~KC_SCRL~, ~KC_BRMD~          | Scroll Lock, Brightness Down (macOS)    | yes     | yes (2) | yes       |
+| ~KC_PAUSE~               | ~KC_PAUS~, ~KC_BRK~, ~KC_BRMU~  | Pause, Brightness Up (macOS)            | yes     | yes (2) | yes       |
+| ~KC_INSERT~              | ~KC_INS~                    | Insert                                  | yes     |         | yes       |
+| ~KC_HOME~                |                           | Home                                    | yes     | yes     | yes       |
+| ~KC_PAGE_UP~             | ~KC_PGUP~                   | Page Up                                 | yes     | yes     | yes       |
+| ~KC_DELETE~              | ~KC_DEL~                    | Forward Delete                          | yes     | yes     | yes       |
+| ~KC_END~                 |                           | End                                     | yes     | yes     | yes       |
+| ~KC_PAGE_DOWN~           | ~KC_PGDN~                   | Page Down                               | yes     | yes     | yes       |
+| ~KC_RIGHT~               | ~KC_RGHT~                   | Right Arrow                             | yes     | yes     | yes       |
+| ~KC_LEFT~                |                           | Left Arrow                              | yes     | yes     | yes       |
+| ~KC_DOWN~                |                           | Down Arrow                              | yes     | yes     | yes       |
+| ~KC_UP~                  |                           | Up Arrow                                | yes     | yes     | yes       |
+| ~KC_NUM_LOCK~            | ~KC_NUM~                    | Keypad Num Lock and Clear               | yes     | yes     | yes       |
+| ~KC_KP_SLASH~            | ~KC_PSLS~                   | Keypad ~/~                                | yes     | yes     | yes       |
+| ~KC_KP_ASTERISK~         | ~KC_PAST~                   | Keypad ~*~                                | yes     | yes     | yes       |
+| ~KC_KP_MINUS~            | ~KC_PMNS~                   | Keypad ~-~                                | yes     | yes     | yes       |
+| ~KC_KP_PLUS~             | ~KC_PPLS~                   | Keypad ~+~                                | yes     | yes     | yes       |
+| ~KC_KP_ENTER~            | ~KC_PENT~                   | Keypad Enter                            | yes     | yes     | yes       |
+| ~KC_KP_1~                | ~KC_P1~                     | Keypad ~1~ and End                        | yes     | yes     | yes       |
+| ~KC_KP_2~                | ~KC_P2~                     | Keypad ~2~ and Down Arrow                 | yes     | yes     | yes       |
+| ~KC_KP_3~                | ~KC_P3~                     | Keypad ~3~ and Page Down                  | yes     | yes     | yes       |
+| ~KC_KP_4~                | ~KC_P4~                     | Keypad ~4~ and Left Arrow                 | yes     | yes     | yes       |
+| ~KC_KP_5~                | ~KC_P5~                     | Keypad ~5~                                | yes     | yes     | yes       |
+| ~KC_KP_6~                | ~KC_P6~                     | Keypad ~6~ and Right Arrow                | yes     | yes     | yes       |
+| ~KC_KP_7~                | ~KC_P7~                     | Keypad ~7~ and Home                       | yes     | yes     | yes       |
+| ~KC_KP_8~                | ~KC_P8~                     | Keypad ~8~ and Up Arrow                   | yes     | yes     | yes       |
+| ~KC_KP_9~                | ~KC_P9~                     | Keypad ~9~ and Page Up                    | yes     | yes     | yes       |
+| ~KC_KP_0~                | ~KC_P0~                     | Keypad ~0~ and Insert                     | yes     | yes     | yes       |
+| ~KC_KP_DOT~              | ~KC_PDOT~                   | Keypad ~.~ and Delete                     | yes     | yes     | yes       |
+| ~KC_NONUS_BACKSLASH~     | ~KC_NUBS~                   | Non-US ~\~ and \vert                          | yes     | yes     | yes       |
+| ~KC_APPLICATION~         | ~KC_APP~                    | Application (Windows Context Menu Key)  | yes     |         | yes       |
+| ~KC_KB_POWER~            |                           | System Power                            |         | yes (3) | yes       |
+| ~KC_KP_EQUAL~            | ~KC_PEQL~                   | Keypad ~=~                                | yes     | yes     | yes       |
+| ~KC_F13~                 |                           | F13                                     | yes     | yes     | yes       |
+| ~KC_F14~                 |                           | F14                                     | yes     | yes     | yes       |
+| ~KC_F15~                 |                           | F15                                     | yes     | yes     | yes       |
+| ~KC_F16~                 |                           | F16                                     | yes     | yes     | yes       |
+| ~KC_F17~                 |                           | F17                                     | yes     | yes     | yes       |
+| ~KC_F18~                 |                           | F18                                     | yes     | yes     | yes       |
+| ~KC_F19~                 |                           | F19                                     | yes     | yes     | yes       |
+| ~KC_F20~                 |                           | F20                                     | yes     |         | yes       |
+| ~KC_F21~                 |                           | F21                                     | yes     |         | yes       |
+| ~KC_F22~                 |                           | F22                                     | yes     |         | yes       |
+| ~KC_F23~                 |                           | F23                                     | yes     |         | yes       |
+| ~KC_F24~                 |                           | F24                                     | yes     |         | yes       |
+| ~KC_EXECUTE~             | ~KC_EXEC~                   | Execute                                 |         |         | yes       |
+| ~KC_HELP~                |                           | Help                                    |         |         | yes       |
+| ~KC_MENU~                |                           | Menu                                    |         |         | yes       |
+| ~KC_SELECT~              | ~KC_SLCT~                   | Select                                  |         |         | yes       |
+| ~KC_STOP~                |                           | Stop                                    |         |         | yes       |
+| ~KC_AGAIN~               | ~KC_AGIN~                   | Again                                   |         |         | yes       |
+| ~KC_UNDO~                |                           | Undo                                    |         |         | yes       |
+| ~KC_CUT~                 |                           | Cut                                     |         |         | yes       |
+| ~KC_COPY~                |                           | Copy                                    |         |         | yes       |
+| ~KC_PASTE~               | ~KC_PSTE~                   | Paste                                   |         |         | yes       |
+| ~KC_FIND~                |                           | Find                                    |         |         | yes       |
+| ~KC_KB_MUTE~             |                           | Mute                                    |         | yes     | yes       |
+| ~KC_KB_VOLUME_UP~        |                           | Volume Up                               |         | yes     | yes       |
+| ~KC_KB_VOLUME_DOWN~      |                           | Volume Down                             |         | yes     | yes       |
+| ~KC_LOCKING_CAPS_LOCK~   | ~KC_LCAP~                   | Locking Caps Lock                       | yes     | yes     |           |
+| ~KC_LOCKING_NUM_LOCK~    | ~KC_LNUM~                   | Locking Num Lock                        | yes     | yes     |           |
+| ~KC_LOCKING_SCROLL_LOCK~ | ~KC_LSCR~                   | Locking Scroll Lock                     | yes     | yes     |           |
+| ~KC_KP_COMMA~            | ~KC_PCMM~                   | Keypad ~,~                                |         |         | yes       |
+| ~KC_KP_EQUAL_AS400~      |                           | Keypad ~=~ on AS/400 keyboards            |         |         |           |
+| ~KC_INTERNATIONAL_1~     | ~KC_INT1~                   | International 1                         | yes     |         | yes       |
+| ~KC_INTERNATIONAL_2~     | ~KC_INT2~                   | International 2                         | yes     |         | yes       |
+| ~KC_INTERNATIONAL_3~     | ~KC_INT3~                   | International 3                         | yes     |         | yes       |
+| ~KC_INTERNATIONAL_4~     | ~KC_INT4~                   | International 4                         | yes     |         | yes       |
+| ~KC_INTERNATIONAL_5~     | ~KC_INT5~                   | International 5                         | yes     |         | yes       |
+| ~KC_INTERNATIONAL_6~     | ~KC_INT6~                   | International 6                         |         |         | yes       |
+| ~KC_INTERNATIONAL_7~     | ~KC_INT7~                   | International 7                         |         |         |           |
+| ~KC_INTERNATIONAL_8~     | ~KC_INT8~                   | International 8                         |         |         |           |
+| ~KC_INTERNATIONAL_9~     | ~KC_INT9~                   | International 9                         |         |         |           |
+| ~KC_LANGUAGE_1~          | ~KC_LNG1~                   | Language 1                              |         |         | yes       |
+| ~KC_LANGUAGE_2~          | ~KC_LNG2~                   | Language 2                              |         |         | yes       |
+| ~KC_LANGUAGE_3~          | ~KC_LNG3~                   | Language 3                              |         |         | yes       |
+| ~KC_LANGUAGE_4~          | ~KC_LNG4~                   | Language 4                              |         |         | yes       |
+| ~KC_LANGUAGE_5~          | ~KC_LNG5~                   | Language 5                              |         |         | yes       |
+| ~KC_LANGUAGE_6~          | ~KC_LNG6~                   | Language 6                              |         |         |           |
+| ~KC_LANGUAGE_7~          | ~KC_LNG7~                   | Language 7                              |         |         |           |
+| ~KC_LANGUAGE_8~          | ~KC_LNG8~                   | Language 8                              |         |         |           |
+| ~KC_LANGUAGE_9~          | ~KC_LNG9~                   | Language 9                              |         |         |           |
+| ~KC_ALTERNATE_ERASE~     | ~KC_ERAS~                   | Alternate Erase                         |         |         |           |
+| ~KC_SYSTEM_REQUEST~      | ~KC_SYRQ~                   | SysReq/Attention                        |         |         |           |
+| ~KC_CANCEL~              | ~KC_CNCL~                   | Cancel                                  |         |         |           |
+| ~KC_CLEAR~               | ~KC_CLR~                    | Clear                                   |         |         | yes       |
+| ~KC_PRIOR~               | ~KC_PRIR~                   | Prior                                   |         |         |           |
+| ~KC_RETURN~              | ~KC_RETN~                   | Return                                  |         |         |           |
+| ~KC_SEPARATOR~           | ~KC_SEPR~                   | Separator                               |         |         |           |
+| ~KC_OUT~                 |                           | Out                                     |         |         |           |
+| ~KC_OPER~                |                           | Oper                                    |         |         |           |
+| ~KC_CLEAR_AGAIN~         | ~KC_CLAG~                   | Clear/Again                             |         |         |           |
+| ~KC_CRSEL~               | ~KC_CRSL~                   | CrSel/Props                             |         |         |           |
+| ~KC_EXSEL~               | ~KC_EXSL~                   | ExSel                                   |         |         |           |
+| ~KC_LEFT_CTRL~           | ~KC_LCTL~                   | Left Control                            | yes     | yes     | yes       |
+| ~KC_LEFT_SHIFT~          | ~KC_LSFT~                   | Left Shift                              | yes     | yes     | yes       |
+| ~KC_LEFT_ALT~            | ~KC_LALT~, ~KC_LOPT~          | Left Alt (Option)                       | yes     | yes     | yes       |
+| ~KC_LEFT_GUI~            | ~KC_LGUI~, ~KC_LCMD~, ~KC_LWIN~ | Left GUI (Windows/Command/Meta key)     | yes     | yes     | yes       |
+| ~KC_RIGHT_CTRL~          | ~KC_RCTL~                   | Right Control                           | yes     | yes     | yes       |
+| ~KC_RIGHT_SHIFT~         | ~KC_RSFT~                   | Right Shift                             | yes     | yes     | yes       |
+| ~KC_RIGHT_ALT~           | ~KC_RALT~, ~KC_ROPT~, ~KC_ALGR~ | Right Alt (Option/AltGr)                | yes     | yes     | yes       |
+| ~KC_RIGHT_GUI~           | ~KC_RGUI~, ~KC_RCMD~, ~KC_RWIN~ | Right GUI (Windows/Command/Meta key)    | yes     | yes     | yes       |
+| ~KC_SYSTEM_POWER~        | ~KC_PWR~                    | System Power Down                       | yes     | yes (3) | yes       |
+| ~KC_SYSTEM_SLEEP~        | ~KC_SLEP~                   | System Sleep                            | yes     | yes (3) | yes       |
+| ~KC_SYSTEM_WAKE~         | ~KC_WAKE~                   | System Wake                             |         | yes (3) | yes       |
+| ~KC_AUDIO_MUTE~          | ~KC_MUTE~                   | Mute                                    | yes     | yes     | yes       |
+| ~KC_AUDIO_VOL_UP~        | ~KC_VOLU~                   | Volume Up                               | yes     | yes (4) | yes       |
+| ~KC_AUDIO_VOL_DOWN~      | ~KC_VOLD~                   | Volume Down                             | yes     | yes (4) | yes       |
+| ~KC_MEDIA_NEXT_TRACK~    | ~KC_MNXT~                   | Next Track                              | yes     | yes (5) | yes       |
+| ~KC_MEDIA_PREV_TRACK~    | ~KC_MPRV~                   | Previous Track                          | yes     | yes (5) | yes       |
+| ~KC_MEDIA_STOP~          | ~KC_MSTP~                   | Stop Track                              | yes     |         | yes       |
+| ~KC_MEDIA_PLAY_PAUSE~    | ~KC_MPLY~                   | Play/Pause Track                        | yes     | yes     | yes       |
+| ~KC_MEDIA_SELECT~        | ~KC_MSEL~                   | Launch Media Player                     | yes     |         | yes       |
+| ~KC_MEDIA_EJECT~         | ~KC_EJCT~                   | Eject                                   |         | yes     | yes       |
+| ~KC_MAIL~                |                           | Launch Mail                             | yes     |         | yes       |
+| ~KC_CALCULATOR~          | ~KC_CALC~                   | Launch Calculator                       | yes     |         | yes       |
+| ~KC_MY_COMPUTER~         | ~KC_MYCM~                   | Launch My Computer                      | yes     |         | yes       |
+| ~KC_WWW_SEARCH~          | ~KC_WSCH~                   | Browser Search                          | yes     |         | yes       |
+| ~KC_WWW_HOME~            | ~KC_WHOM~                   | Browser Home                            | yes     |         | yes       |
+| ~KC_WWW_BACK~            | ~KC_WBAK~                   | Browser Back                            | yes     |         | yes       |
+| ~KC_WWW_FORWARD~         | ~KC_WFWD~                   | Browser Forward                         | yes     |         | yes       |
+| ~KC_WWW_STOP~            | ~KC_WSTP~                   | Browser Stop                            | yes     |         | yes       |
+| ~KC_WWW_REFRESH~         | ~KC_WREF~                   | Browser Refresh                         | yes     |         | yes       |
+| ~KC_WWW_FAVORITES~       | ~KC_WFAV~                   | Browser Favorites                       | yes     |         | yes       |
+| ~KC_MEDIA_FAST_FORWARD~  | ~KC_MFFD~                   | Next Track                              | yes     | yes (5) | yes       |
+| ~KC_MEDIA_REWIND~        | ~KC_MRWD~                   | Previous Track                          | yes (6) | yes (5) | yes       |
+| ~KC_BRIGHTNESS_UP~       | ~KC_BRIU~                   | Brightness Up                           | yes     | yes     | yes       |
+| ~KC_BRIGHTNESS_DOWN~     | ~KC_BRID~                   | Brightness Down                         | yes     | yes     | yes       |
+
+1. The Linux kernel HID driver recognizes [[https://github.com/torvalds/linux/blob/master/drivers/hid/hid-input.c][nearly all keycodes]], but the default bindings depend on the DE/WM.2. Treated as F13-F15.
+3. Must be held for about three seconds, and will display a prompt instead.
+4. Holding Shift+Option allows for finer control of volume level.
+5. Skips the entire track in iTunes when tapped, seeks within the current track when held.
+6. WMP does not recognize the Rewind key, but both alter playback speed in VLC.
