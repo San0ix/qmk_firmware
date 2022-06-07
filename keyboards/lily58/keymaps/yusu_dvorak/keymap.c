@@ -26,13 +26,13 @@ KC_NO, KC_P7, KC_P8, KC_P9, KC_PEQL, KC_NO,
 
 // third row
 // left hand
-KC_NO, KC_CIRC, KC_UNDS, KC_PMNS, KC_PPLS, KC_PEQL,
+KC_NO, KC_CIRC, KC_UNDS, KC_PMNS, KC_PSLS, KC_PEQL,
 // right hand
 KC_NO, KC_P4, KC_P5, KC_P6, KC_PPLS, KC_NO,
 
 // fourth row
 // left hand
-KC_NO, KC_PERC, KC_PSLS, KC_EXLM, KC_QUES, KC_NO,
+KC_NO, KC_PERC, KC_PPLS, KC_EXLM, KC_QUES, KC_NO,
 // thumb keys
 KC_TRNS, KC_TRNS,
 // right hand
@@ -45,20 +45,29 @@ KC_TRNS, LT(3,KC_ENT), LT(1,KC_P0), KC_PDOT
 
 [2] = LAYOUT(
 // first row
+// left hand
 KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,
+// right hand
 KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,
 
 // second row
+// left hand
 KC_NO, KC_NO, KC_TRNS, KC_TRNS, KC_PAST, KC_NO,
+// right hand
 KC_NO, KC_TILD, KC_AMPR, KC_PIPE, KC_HASH, KC_NO,
 
 // third row
-KC_NO, KC_CIRC, KC_UNDS, KC_PMNS, KC_PPLS, KC_PEQL,
+// left hand
+KC_NO, KC_CIRC, KC_UNDS, KC_PMNS, KC_PSLS, KC_PEQL,
+// right hand
 KC_LCBR, KC_LBRC, KC_LPRN, KC_MINS, KC_AT, KC_DLR,
 
 // fourth row
-KC_NO, KC_PERC, KC_PSLS, KC_EXLM, KC_QUES, KC_NO,
+// left hand
+KC_NO, KC_PERC, KC_PPLS, KC_EXLM, KC_QUES, KC_NO,
+// thumb keys
 KC_TRNS, KC_TRNS,
+// right hand
 KC_RCBR, KC_RBRC, KC_RPRN, KC_UNDS, KC_NO, KC_NO,
 
 // thumb row
@@ -67,19 +76,33 @@ KC_TRNS, KC_TRNS, LT(3,KC_ESC), KC_TRNS
 ),
 
 [3] = LAYOUT(
+// first row
+// left hand
 KC_PWR, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,
+// right hand
 KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_PSCR,
 
+// second row
+// left hand
 KC_F1, KC_F2, KC_F3, KC_F4, KC_F5, KC_F6,
+// right hand
 KC_F7, KC_F8, KC_F9, KC_F10, KC_F11, KC_F12,
 
+// third row
+// left hand
 KC_MSTP, KC_MPRV, KC_VOLD, KC_VOLU, KC_MNXT, KC_MPLY,
+// right hand
 KC_HOME, KC_LEFT, KC_DOWN, KC_UP, KC_RGHT, KC_END,
 
+// fourth row
+// left hand
 MEH(KC_QUOT), MEH(KC_Q), KC_MUTE, MEH(KC_J), MEH(KC_K), MEH(KC_X),
+// thumb keys
 KC_TRNS, KC_TRNS,
+// right hand
 KC_NO, KC_NO, KC_PGDN, KC_PGUP, KC_NO, KC_NO,
 
+// thumb row
 KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
 KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS
 ),
