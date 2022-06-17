@@ -8,25 +8,29 @@
 
 #+begin_src C
 #pragma once
+#+end_src
 
-/* Select hand configuration */
-
+Select, which half of the split keyboard should be the main one (making it the one that needs to be connected to the PC)
+#+begin_src C
 #define MASTER_LEFT
 // #define MASTER_RIGHT
 // #define EE_HANDS
+#+end_src
 
-#define TAPPING_FORCE_HOLD
-#define TAPPING_TERM 200
-#define IGNORE_MOD_TAP_INTERRUPT
-#define PERMISSIVE_HOLD
+Define the amount of time until a one shot key is released again
+#+begin_src C
+#define ONESHOT_TIMEOUT 500  /* Time (in ms) before the one shot key is released */
+#+end_src
 
-#undef RGBLED_NUM
-#define RGBLIGHT_ANIMATIONS
-#define RGBLED_NUM 27
-#define RGBLIGHT_LIMIT_VAL 120
-#define RGBLIGHT_HUE_STEP 10
-#define RGBLIGHT_SAT_STEP 17
-#define RGBLIGHT_VAL_STEP 17
+RGB settings that I don't use (no RGB)
+#+begin_src C
+/* #undef RGBLED_NUM */
+/* #define RGBLIGHT_ANIMATIONS */
+/* #define RGBLED_NUM 27 */
+/* #define RGBLIGHT_LIMIT_VAL 120 */
+/* #define RGBLIGHT_HUE_STEP 10 */
+/* #define RGBLIGHT_SAT_STEP 17 */
+/* #define RGBLIGHT_VAL_STEP 17 */
 
 // Underglow
 /*
@@ -36,6 +40,33 @@
 #define RGBLIGHT_SLEEP
 ,*/
 
+#+end_src
+
+** Modifications for Home-Row Mod Keys
+
+This setting is bassically required for home-row mod keys -- it make it so pressing another key while a dual-role key is still held down does not always fire the modified key.
+Instead, the tapping term (or other conditions) determine whether an event was a combination or not.
+#+begin_src C
+#define IGNORE_MOD_TAP_INTERRUPT
+#+end_src
+
+Set the amount of time a dual-role key needs to be held down for it to trigger the alternative action (modifier)
+#+begin_src C
+#define TAPPING_TERM 150
+#+end_src
+
+Removes the default behavior of repeating a key if you press it quickly and then hold it down.
+This is important to be able to type something like =camelCase= quickly on QWERTY.
+As a downside, this also makes it so there is no way to repeat a dual-role key.
+#+begin_src C
+#define TAPPING_FORCE_HOLD
+#+end_src
+
+Setting this options adds another condition for key-combinations: a dual-role key is pressed, another key is pressed and let go, and then the dual-role key is let go.
+This lets you use key-combinations without having to wait for the tapping-term.
+However, when typing very quickly, it can also lead to a lot of false activations.
+#+begin_src C
+/* #define PERMISSIVE_HOLD */
 #+end_src
 
 * Rules
@@ -76,7 +107,10 @@ SRC +=  ./lib/rgb_state_reader.c \
 #include QMK_KEYBOARD_H
 #+end_src
 
-** Layers
+** Layers Version 1: Full Home-Row Mod Keys & Thumb-Chords
+:PROPERTIES:
+:header-args: :tangle no :main no
+:END:
 
 Define the list of layers and start the definition of the layers
 #+begin_src C
@@ -194,7 +228,7 @@ KC_HOME, KC_LEFT, KC_DOWN, KC_UP, KC_RGHT, KC_END,
 
 // fourth row
 // left hand
-MEH(KC_QUOT), MEH(KC_Q), KC_MUTE, MEH(KC_J), MEH(KC_K), MEH(KC_X),
+KC_NO, KC_NO, KC_MUTE, KC_NO, KC_NO, KC_NO,
 // thumb keys
 KC_TRNS, KC_TRNS,
 // right hand
@@ -203,6 +237,181 @@ KC_NO, KC_NO, KC_PGDN, KC_PGUP, KC_NO, KC_NO,
 // thumb row
 KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
 KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS
+),
+#+end_src
+
+*** Gaming
+
+#+begin_src C
+[4] = LAYOUT(KC_ESC, KC_1, KC_2, KC_3, KC_4, KC_5, KC_6, KC_7, KC_8, KC_9, KC_0, KC_NO, KC_TAB, KC_Q, KC_W, KC_E, KC_R, KC_T, KC_Y, KC_U, KC_I, KC_O, KC_P, KC_NO, KC_LSFT, KC_A, KC_S, KC_D, KC_F, KC_G, KC_H, KC_J, KC_K, KC_L, KC_SCLN, KC_RSFT, KC_LCTL, KC_Z, KC_X, KC_C, KC_V, KC_B, TO(0), TO(0), KC_N, KC_M, KC_COMM, KC_DOT, KC_SLSH, KC_RCTL, KC_LGUI, KC_NO, LT(5,KC_TAB), KC_TRNS, KC_TRNS, LT(5,KC_ENT), KC_NO, KC_RGUI),
+#+end_src
+
+*** Gaming Numbers
+
+#+begin_src C
+[5] = LAYOUT(KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_7, KC_8, KC_9, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_4, KC_5, KC_6, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_1, KC_2, KC_3, KC_NO, KC_TRNS, KC_TRNS, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS)
+#+end_src
+
+** Layers Version 2: Some Home-Row Mod Keys & Thumb-Toggles
+
+
+Define the list of layers and start the definition of the layers
+#+begin_src C
+enum layer_number {
+  DVORAK = 0,
+  SYMBOLS,
+  MATH,
+  NAVIGATION,
+};
+
+const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
+#+end_src
+*** Ideas
+**** DONE Sticky shift on left thumb
+*** Dvorak
+
+#+begin_src C
+[0] = LAYOUT(
+// first row
+// left hand
+KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,
+// right hand
+KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,
+
+// second row
+// left hand
+KC_NO, KC_SCLN, KC_COMM, KC_DOT, KC_P, KC_Y,
+// right hand
+KC_F, KC_G, KC_C, KC_R, KC_L, KC_GRV,
+
+// third row
+// left hand
+KC_BSLS, LGUI_T(KC_A), LALT_T(KC_O), LCTL_T(KC_E), KC_U, KC_I,
+// right hand
+KC_D, KC_H, RCTL_T(KC_T), LALT_T(KC_N), RGUI_T(KC_S), KC_ENT,
+
+// fourth row
+// left hand
+KC_NO, KC_QUOT, KC_Q, KC_J, KC_K, KC_X,
+// thumb keys
+TO(4), TO(4),
+// right hand
+KC_B, KC_M, KC_W, KC_V, KC_Z, KC_NO,
+
+
+
+// thumb keys
+TO(0), KC_TAB, OSL(1), KC_SPC,
+KC_BSPC, OSM(MOD_LSFT), KC_ESC, OSM(MOD_RALT)),
+#+end_src
+
+*** Symbols
+
+Put all symbols in this layer. For additional convenience, copy left hand of [[Numbers]] layer
+#+begin_src C
+[1] = LAYOUT(
+// first row
+// left hand
+KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,
+// right hand
+KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,
+
+// second row
+// left hand
+KC_NO, KC_ESC, KC_TRNS, KC_TRNS, KC_PAST, KC_NO,
+// right hand
+KC_NO, KC_TILD, KC_AMPR, KC_PIPE, KC_HASH, KC_NO,
+
+// third row
+// left hand
+TO(3), KC_CIRC, KC_UNDS, KC_PMNS, KC_PSLS, KC_PEQL,
+// right hand
+KC_LCBR, KC_LBRC, KC_LPRN, KC_MINS, KC_AT, KC_DLR,
+
+// fourth row
+// left hand
+KC_NO, KC_PERC, KC_PPLS, KC_EXLM, KC_QUES, KC_NO,
+// thumb keys
+KC_TRNS, KC_TRNS,
+// right hand
+KC_RCBR, KC_RBRC, KC_RPRN, KC_UNDS, KC_ENT, KC_NO,
+
+// thumb row
+KC_TRNS, KC_TRNS, OSL(2), KC_TRNS,
+KC_TRNS, TO(0), KC_TRNS, KC_TRNS
+),
+#+end_src
+
+*** Numbers
+
+Put numpad on right keyboard and all math-related symbols on the right half
+#+begin_src C
+[2] = LAYOUT(
+// first row
+// left hand
+KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,
+// right hand
+KC_NO, KC_NLCK, KC_NO, KC_NO, KC_NO, KC_NO,
+
+// second row
+// left hand
+KC_NO, KC_ESC, KC_TRNS, KC_TRNS, KC_PAST, KC_NO,
+// right hand
+KC_NO, KC_7, KC_8, KC_9, KC_NO, KC_NO,
+
+// third row
+// left hand
+TO(3), KC_CIRC, KC_UNDS, KC_PMNS, KC_PSLS, KC_PEQL,
+// right hand
+KC_0, KC_4, KC_5, KC_6, KC_NO, KC_NO,
+
+// fourth row
+// left hand
+KC_NO, KC_PERC, KC_PPLS, KC_EXLM, KC_QUES, KC_NO,
+// thumb keys
+KC_TRNS, KC_TRNS,
+// right hand
+KC_NO, KC_1, KC_2, KC_3, KC_ENT, KC_NO,
+
+// thumb row
+KC_TRNS, KC_TRNS, OSL(1), KC_TRNS,
+KC_TRNS, TO(0), KC_TRNS, KC_PDOT
+),
+#+end_src
+
+*** Navigation
+
+#+begin_src C
+[3] = LAYOUT(
+// first row
+// left hand
+KC_PWR, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,
+// right hand
+KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_PSCR,
+
+// second row
+// left hand
+KC_F1, KC_F2, KC_F3, KC_F4, KC_F5, KC_F6,
+// right hand
+KC_F7, KC_F8, KC_F9, KC_F10, KC_F11, KC_F12,
+
+// third row
+// left hand
+KC_MSTP, KC_MPRV, KC_VOLD, KC_VOLU, KC_MNXT, KC_MPLY,
+// right hand
+KC_HOME, KC_LEFT, KC_DOWN, KC_UP, KC_RGHT, KC_END,
+
+// fourth row
+// left hand
+KC_NO, KC_NO, KC_MUTE, KC_NO, KC_NO, KC_NO,
+// thumb keys
+KC_TRNS, KC_TRNS,
+// right hand
+KC_NO, KC_NO, KC_PGDN, KC_PGUP, KC_ENT, KC_NO,
+
+// thumb row
+KC_TRNS, KC_TRNS, OSL(1), KC_TRNS,
+KC_TRNS, TO(0), KC_TRNS, KC_PDOT
 ),
 #+end_src
 
@@ -482,3 +691,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 4. Holding Shift+Option allows for finer control of volume level.
 5. Skips the entire track in iTunes when tapped, seeks within the current track when held.
 6. WMP does not recognize the Rewind key, but both alter playback speed in VLC.
+* Export to .json (for Graphics)
+
+#+begin_src sh :results none :tangle no
+qmk c2json -kb lily58 -km yusu_dvorak -o ~/Downloads/yusu_dvorak.json ~/qmk_firmware/keyboards/lily58/keymaps/yusu_dvorak/keymap.c
+#+end_src
