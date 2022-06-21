@@ -30,17 +30,16 @@ KC_D, KC_H, RCTL_T(KC_T), LALT_T(KC_N), RGUI_T(KC_S), KC_ENT,
 
 // fourth row
 // left hand
-KC_NO, KC_QUOT, KC_Q, KC_J, KC_K, KC_X,
+KC_TAB, KC_QUOT, KC_Q, KC_J, KC_K, KC_X,
 // thumb keys
-TO(4), TO(4),
+OSM(MOD_RALT), OSM(MOD_RALT),
 // right hand
 KC_B, KC_M, KC_W, KC_V, KC_Z, KC_NO,
 
-
-
 // thumb keys
-TO(0), KC_TAB, OSL(1), KC_SPC,
-KC_BSPC, OSM(MOD_LSFT), KC_ESC, OSM(MOD_RALT)),
+OSM(MOD_RALT), OSL(1), OSM(MOD_LSFT), KC_SPC,
+KC_BSPC, OSM(MOD_RSFT), OSL(1), KC_ESC
+),
 
 [1] = LAYOUT(
 // first row
@@ -65,13 +64,13 @@ KC_LCBR, KC_LBRC, KC_LPRN, KC_MINS, KC_AT, KC_DLR,
 // left hand
 KC_NO, KC_PERC, KC_PPLS, KC_EXLM, KC_QUES, KC_NO,
 // thumb keys
-KC_TRNS, KC_TRNS,
+TO(4), TO(4),
 // right hand
 KC_RCBR, KC_RBRC, KC_RPRN, KC_UNDS, KC_ENT, KC_NO,
 
 // thumb row
-KC_TRNS, KC_TRNS, OSL(2), KC_TRNS,
-KC_TRNS, TO(0), KC_TRNS, KC_TRNS
+KC_TRNS, OSL(2), TO(0), KC_TRNS,
+KC_TRNS, TO(0), OSL(2), KC_TRNS
 ),
 
 [2] = LAYOUT(
@@ -97,13 +96,13 @@ KC_0, KC_4, KC_5, KC_6, KC_NO, KC_NO,
 // left hand
 KC_NO, KC_PERC, KC_PPLS, KC_EXLM, KC_QUES, KC_NO,
 // thumb keys
-KC_TRNS, KC_TRNS,
+TO(4), TO(4),
 // right hand
 KC_NO, KC_1, KC_2, KC_3, KC_ENT, KC_NO,
 
 // thumb row
-KC_TRNS, KC_TRNS, OSL(1), KC_TRNS,
-KC_TRNS, TO(0), KC_TRNS, KC_PDOT
+KC_TRNS, OSL(1), TO(0), KC_TRNS,
+KC_TRNS, TO(0), OSL(1), KC_PDOT
 ),
 
 [3] = LAYOUT(
@@ -129,13 +128,13 @@ KC_HOME, KC_LEFT, KC_DOWN, KC_UP, KC_RGHT, KC_END,
 // left hand
 KC_NO, KC_NO, KC_MUTE, KC_NO, KC_NO, KC_NO,
 // thumb keys
-KC_TRNS, KC_TRNS,
+TO(4), TO(4),
 // right hand
 KC_NO, KC_NO, KC_PGDN, KC_PGUP, KC_ENT, KC_NO,
 
 // thumb row
-KC_TRNS, KC_TRNS, OSL(1), KC_TRNS,
-KC_TRNS, TO(0), KC_TRNS, KC_PDOT
+KC_TRNS, OSL(1), TO(0), KC_TRNS,
+KC_TRNS, TO(0), OSL(1), KC_PDOT
 ),
 
 [4] = LAYOUT(KC_ESC, KC_1, KC_2, KC_3, KC_4, KC_5, KC_6, KC_7, KC_8, KC_9, KC_0, KC_NO, KC_TAB, KC_Q, KC_W, KC_E, KC_R, KC_T, KC_Y, KC_U, KC_I, KC_O, KC_P, KC_NO, KC_LSFT, KC_A, KC_S, KC_D, KC_F, KC_G, KC_H, KC_J, KC_K, KC_L, KC_SCLN, KC_RSFT, KC_LCTL, KC_Z, KC_X, KC_C, KC_V, KC_B, TO(0), TO(0), KC_N, KC_M, KC_COMM, KC_DOT, KC_SLSH, KC_RCTL, KC_LGUI, KC_NO, LT(5,KC_TAB), KC_TRNS, KC_TRNS, LT(5,KC_ENT), KC_NO, KC_RGUI),
